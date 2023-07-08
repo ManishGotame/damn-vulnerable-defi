@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/interfaces/IERC3156FlashBorrower.sol";
 import "solmate/src/auth/Owned.sol";
-import { UnstoppableVault, ERC20 } from "../unstoppable/UnstoppableVault.sol";
+import {UnstoppableVault, ERC20} from "../unstoppable/UnstoppableVault.sol";
 
 /**
  * @title ReceiverUnstoppable
@@ -18,6 +18,7 @@ contract ReceiverUnstoppable is Owned, IERC3156FlashBorrower {
         pool = UnstoppableVault(poolAddress);
     }
 
+    // after the flash loan is transferred, this function is called by the vault contract
     function onFlashLoan(
         address initiator,
         address token,
@@ -25,21 +26,23 @@ contract ReceiverUnstoppable is Owned, IERC3156FlashBorrower {
         uint256 fee,
         bytes calldata
     ) external returns (bytes32) {
-        if (initiator != address(this) || msg.sender != address(pool) || token != address(pool.asset()) || fee != 0)
-            revert UnexpectedFlashLoan();
+        if (
+            initiator != address(this) ||
+            msg.sender != address(pool) ||
+            token != address(pool.asset()) ||
+            fee != 0
+        ) revert UnexpectedFlashLoan();
 
         ERC20(token).approve(address(pool), amount);
+
+        // update the feeReceipient address
+        //pool.setFeeRecipient(address(uint160(2)));
 
         return keccak256("IERC3156FlashBorrower.onFlashLoan");
     }
 
     function executeFlashLoan(uint256 amount) external onlyOwner {
         address asset = address(pool.asset());
-        pool.flashLoan(
-            this,
-            asset,
-            amount,
-            bytes("")
-        );
+        pool.flashLoan(this, asset, amount, bytes(""));
     }
 }
