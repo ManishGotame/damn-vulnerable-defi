@@ -28,6 +28,9 @@ describe('[Challenge] Naive receiver', function () {
 
         receiver = await FlashLoanReceiverFactory.deploy(pool.address);
         await deployer.sendTransaction({ to: receiver.address, value: ETHER_IN_RECEIVER });
+        
+        // reverts because there is a check
+        // that the pool has to be the caller()
         await expect(
             receiver.onFlashLoan(deployer.address, ETH, ETHER_IN_RECEIVER, 10n**18n, "0x")
         ).to.be.reverted;
@@ -37,7 +40,18 @@ describe('[Challenge] Naive receiver', function () {
     });
 
     it('Execution', async function () {
-        /** CODE YOUR SOLUTION HERE */
+        const ETH = await pool.ETH();
+        
+        await receiver.onFlashLoan(deployer.address, ETH, ETHER_IN_RECEIVER, 10n**18n, "0x")
+        // I guess the simple solution is to call the function about 10 times to
+        // drain all of 10 ETH out of the user's contract.
+        // But we have to think better than that.
+
+        // I think a recursive loop where the function call back the lender to
+        // take another flash loan.
+
+
+        
     });
 
     after(async function () {
