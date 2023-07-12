@@ -20,6 +20,9 @@ contract FlashLoanReceiver is IERC3156FlashBorrower {
         pool = _pool;
     }
 
+    // Bug: The function does not check that the address that has requested this loan,
+    //      is the owner of this receiver contract. Thus anyone is able to call the flash loan
+    //      contract and drain this receiver contract's balance.
     function onFlashLoan(
         address,
         address token,
