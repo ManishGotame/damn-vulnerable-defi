@@ -27,9 +27,6 @@ contract FlashLoanReceiver is IERC3156FlashBorrower {
         uint256 fee,
         bytes calldata
     ) external returns (bytes32) {
-        // when using delegatecall()
-        // caller() returns 0x00
-
         assembly {
             // gas savings
             // if pool.slot !== caller()
@@ -42,6 +39,7 @@ contract FlashLoanReceiver is IERC3156FlashBorrower {
         if (token != ETH) revert UnsupportedCurrency();
 
         uint256 amountToBeRepaid;
+
         unchecked {
             amountToBeRepaid = amount + fee;
         }

